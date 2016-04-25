@@ -9,10 +9,6 @@ minutes: 45
 knitr::opts_chunk$set(echo = TRUE, purl = FALSE)
 ```
 
-```{r, echo=FALSE, purl=FALSE, message = FALSE}
-source("setup.R")
-```
-
 
 ------------
 
