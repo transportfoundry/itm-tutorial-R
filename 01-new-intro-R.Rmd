@@ -1,0 +1,512 @@
+---
+layout: topic
+title: Introduction to R and dplyr
+author: Data Carpentry contributors
+minutes: 45
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, purl = FALSE)
+```
+
+```{r, echo=FALSE, purl=FALSE, message = FALSE}
+source("setup.R")
+```
+
+
+------------
+
+> ## Learning Objectives
+>
+> * Familiarize participants with R syntax
+> * Understand the concepts of objects and assignment
+> * Understand what functions and packages are, and how to obtain them.
+> * Understand the concepts data frames, vectors, and data types
+
+
+------------
+
+## The R syntax
+
+_Start by showing an example of a script_
+
+* Point to the different parts:
+  - a function
+  - the assignment operator `<-`
+  - the `=` for arguments
+  - the comments `#` and how they are used to document function and its content
+  - the `$` operator
+* Point to indentation and consistency in spacing to improve clarity
+
+![Example of a simple R script](img/r_starting_example_script.png)
+
+
+### Creating objects
+
+```{r, echo=FALSE, purl=TRUE}
+### Creating objects in R
+
+```
+
+You can get output from R simply by typing in math in the console
+
+```{r, purl=FALSE}
+3 + 5
+12/7
+```
+
+However, to do useful and interesting things, we need to assign _values_ to
+_objects_. To create an object, we need to give it a name followed by the
+assignment operator `<-`, and the value we want to give it:
+
+```{r, purl=FALSE}
+weight_kg <- 55
+```
+
+Objects can be given any name such as `x`, `current_temperature`, or
+`subject_id`. You want your object names to be explicit and not too long. They
+cannot start with a number (`2x` is not valid, but `x2` is). R is case sensitive
+(e.g., `weight_kg` is different from `Weight_kg`). There are some names that
+cannot be used because they are the names of fundamental functions in R (e.g.,
+`if`, `else`, `for`, see
+[here](https://stat.ethz.ch/R-manual/R-devel/library/base/html/Reserved.html)
+for a complete list). In general, even if it's allowed, it's best to not use
+other function names (e.g., `c`, `T`, `mean`, `data`, `df`, `weights`). In doubt
+check the help to see if the name is already in use. It's also best to avoid
+dots (`.`) within a variable name as in `my.dataset`. There are many functions
+in R with dots in their names for historical reasons, but because dots have a
+special meaning in R (for methods) and other programming languages, it's best to
+avoid them. It is also recommended to use nouns for variable names, and verbs
+for function names. It's important to be consistent in the styling of your code
+(where you put spaces, how you name variable, etc.). In R, two popular style
+guides are [Hadley Wickham's](http://adv-r.had.co.nz/Style.html) and
+[Google's](https://google-styleguide.googlecode.com/svn/trunk/Rguide.xml).
+
+When assigning a value to an object, R does not print anything. You can force to
+print the value by using parentheses or by typing the name:
+
+```{r, purl=FALSE}
+weight_kg <- 55    # doesn't print anything
+(weight_kg <- 55)  # but putting parenthesis around the call prints the value of `weight_kg`
+weight_kg          # and so does typing the name of the object
+```
+
+Now that R has `weight_kg` in memory, we can do arithmetic with it. For
+instance, we may want to convert this weight in pounds (weight in pounds is 2.2
+times the weight in kg):
+
+```{r, purl=FALSE}
+2.2 * weight_kg
+```
+
+We can also change a variable's value by assigning it a new one:
+
+```{r, purl=FALSE}
+weight_kg <- 57.5
+2.2 * weight_kg
+```
+
+This means that assigning a value to one variable does not change the values of
+other variables.  For example, let's store the animal's weight in pounds in a new
+variable, `weight_lb`:
+
+```{r, purl=FALSE}
+weight_lb <- 2.2 * weight_kg
+```
+
+and then change `weight_kg` to 100.
+
+```{r, purl=FALSE}
+weight_kg <- 100
+```
+
+What do you think is the current content of the object `weight_lb`? 126.5 or 200?
+
+
+R objects can refer to more than single values. Other common objects are
+*functions*, *vectors*, *lists*, *data frames*, and many others. In today's lesson
+we will talk mostly about vectors and data frames.
+
+
+### Vectors
+
+A vector is a set of values of a common type. You can create a vector with the
+`c` function. You can examine the structure of an object with the `str` function.
+
+```{r}
+a <- c(100, 80, 90)
+a
+str(a)
+```
+
+If you mix types, then the vector will default to a common type. *Question*: Why
+are there quotes around the values?
+
+```{r}
+a_character <- c(100, 80, "90")
+a_character
+str(a)
+```
+
+If you have a vector of data that you want to be numeric but it is read in
+as characters, you can change it to numeric.
+
+```{r}
+as.numeric(a)
+```
+
+If you have a field that cannot be turned into a numeric value, it becomes
+the missing value `NA`. One of R's advantages over other programming languages
+is that it supports missing values.
+```{r}
+as.numeric(c(100, 80, "ninety"))
+```
+
+Most statistical functions in R apply to vectors, like `sum` and `length`
+
+```{r}
+sum(a)
+length(a)
+```
+
+We can write our own functions, too.
+
+```{r }
+average <- function(x){
+  sum(x) / length(x)
+}
+
+average(a)
+```
+
+Of course, there's a `mean` function already defined that we should use instead
+of writing our own...
+
+```{r}
+mean(a)
+```
+
+Note that if there is an `NA` value in your vector, then `mean` will by default
+return `NA`. You can exclude these values by saying `na.rm = TRUE`
+
+```{r}
+mean(c(5, 7, 4, NA))
+mean(c(5, 7, 4, NA), na.rm = TRUE)
+```
+
+### Data frames
+
+A data frame is a list of vectors that must be of the same length.
+
+```{r}
+d <- data.frame(
+  name = c(1L, 2L, 3L),
+  a = a
+)
+
+d
+str(d)
+```
+
+You can do operations on single vector elements from a data frame with the `$`
+selection operator.
+
+```{r}
+mean(d$a)
+```
+
+
+Most data frames aren't created by a user, but are read in from tabular data.
+To explore data frames more effectively with some real-world data examples, we'll
+want to load a couple of *packages* first.
+
+## R Packages
+Packages in R are basically sets of additional functions that let you do more
+stuff. The functions we've been using so far, like `str()` or `mean()`,
+come built into R; packages give you access thousands of functions that have been
+written by programmers and scientists around the world. Before you use a
+package for the first time you need to install it on your machine. 
+for this workshop, install two packages: `dplyr` and `readr`.
+
+```{r, eval = FALSE, purl = FALSE}
+install.packages("dplyr")
+install.packages("readr")
+```
+
+You might get asked to choose a CRAN mirror -- this is basically asking you to
+choose a site to download the package from. The choice doesn't matter too much;
+we recommend the RStudio mirror.
+
+`readr` contains functions to read tabular data (like `.csv` files) into your
+working environment as a data frame.
+`dplyr` contains functions for manipulating data frames. 
+R already contains functions to do both of these things in the `base` package,
+which we've been exploring so far. These packages have several improvements over
+`base` functions, however:
+
+  - Computationally expensive operations are programmed in C++, so the functions
+  in these libraries are (really, really) fast.
+  - The syntax for using functions in these packages is clear and easy to write.
+  This also makes it easy to read.
+  - Some relics of R that can be annoying in some contexts are avoided.
+
+In order to use functions in a package, you need to load it from your library.
+
+```{r, message = FALSE, purl = FALSE}
+library("dplyr")    ## load the package
+library("readr")    ## load the package
+```
+
+
+## readr
+
+Download the NHTS data for this example from <https://goo.gl/8M0bdM>. Unzip the 
+two csv files and place them in your project's `data/` folder. Then read
+them into your workspace with `read_csv`. These are real NHTS records, but with 
+only the first 200 individuals for expediency.
+
+```{r}
+nhts_per <- read_csv("data/nhts_per.csv")
+nhts_per
+nhts_day <- read_csv("data/nhts_day.csv")
+nhts_day
+```
+
+When you print a data frame, it will show you how many rows are in the data, and 
+the names and types of all the variables. Additionally, RStudio is equipped with
+a function that will allow you to explore a data frame interactively.
+
+```{r, eval = FALSE}
+View(nhts_per)
+```
+
+## dplyr
+
+We're going to learn some of the most common `dplyr` functions: `select()`,
+`filter()`, `mutate()`, `group_by()`, and `summarize()`. To select columns of a
+data frame, use `select()`. The first argument to this function is the data
+frame (`surveys`), and the subsequent arguments are the columns to keep.
+
+```{r, results = 'hide', purl = FALSE}
+select(nhts_per, HOUSEID,  HHSIZE, HHVEHCNT, USEPUBTR)
+```
+
+To choose rows, use `filter()`:
+
+```{r, purl = FALSE}
+filter(nhts_per, USEPUBTR == "01")
+```
+
+How can you tell that this changed?
+
+### Pipes
+
+But what if you wanted to select and filter at the same time? There are three
+ways to do this: use intermediate steps, nested functions, or pipes. With the
+intermediate steps, you essentially create a temporary data frame and use that
+as input to the next function. This can clutter up your workspace with lots of
+objects. You can also nest functions (i.e. one function inside of another).
+This is handy, but can be difficult to read if too many functions are nested as
+the process from inside out. The last option, pipes, are a fairly recent
+addition to R. Pipes let you take the output of one function and send it
+directly to the next, which is useful when you need to many things to the same
+data set.  Pipes in R look like `%>%` and are made available via the `magrittr`
+package installed as part of `dplyr`.
+
+```{r, purl = FALSE}
+nhts_per %>%
+  filter(USEPUBTR == "01") %>%
+  select(HOUSEID, PERSONID, HHSIZE, HHVEHCNT, USEPUBTR)
+```
+
+In the above we use the pipe to send the `nhts_per` data set first through
+`filter`, to keep rows where `USEPUBTR` was `01`, and then through `select` to
+keep the household size, vehicles, and public transit columns. When the data
+frame is being passed to the `filter()` and `select()` functions through a pipe,
+we don't need to include it as an argument to these functions anymore.
+
+If we wanted to create a new object with this smaller version of the data we
+could do so by assigning it a new name:
+
+```{r, purl = FALSE}
+use_transit <- nhts_per %>%
+  filter(USEPUBTR == "01") %>%
+  select(HOUSEID, PERSONID, HHSIZE, HHVEHCNT, USEPUBTR)
+```
+
+Note that the final data frame is the leftmost part of this expression.
+
+> ### Challenge {.challenge}
+>
+>  Using pipes, subset the data to include adults who live in households 
+where the number of vehicles is less than the number of adults. (`R_AGE` is the 
+age of the individual.)
+
+<!---
+```{r, eval=FALSE, purl=FALSE}
+## Answer
+nhts_per %>%
+    filter(R_AGE >= 18) %>%
+    filter(HHVEHCNT < NUMADLT)
+```
+--->
+
+
+### Mutate
+
+Frequently you'll want to create new columns based on the values in existing
+columns, for example to do unit conversions, or find the ratio of values in two
+columns. For this we'll use `mutate()`.
+
+To create a new column which is a logical value if the person used public transit,
+
+
+```{r, purl = FALSE}
+nhts_per %>%
+  mutate(use_transit = ifelse(USEPUBTR == "01", TRUE, FALSE)) %>%
+  select(HOUSEID, PERSONID, use_transit)
+  
+```
+
+Because most of these are `FALSE`, we can use `filter` to zero in on them. Note
+that because `use_transit` is logical, we don't need to be explicit about what
+we are filtering.
+
+```{r, purl = FALSE}
+nhts_per %>%
+  mutate(use_transit = ifelse(USEPUBTR == "01", TRUE, FALSE)) %>%
+  filter(use_transit) %>%
+  select(HOUSEID, PERSONID, use_transit)
+```
+
+You can negate any R function with the `!` symbol. If we wanted non-transit
+users, we could do this:
+
+```{r, purl = FALSE}
+nhts_per %>%
+  mutate(use_transit = ifelse(USEPUBTR == "01", TRUE, FALSE)) %>%
+  filter(!use_transit) %>%
+  select(HOUSEID, PERSONID, use_transit)
+```
+> ### Challenge {.challenge}
+>
+>  Create a new dataframe from the nhts person data that meets the following
+>  criteria: contains only the `HOUSEID` and `PERSONID` columns and a column
+>  that gives the difference between the number of workers and the number of
+>  vehicles in the household, but only for households with at least two more vehicles
+>  than workers.
+>  **Hint**: think about how the commands should be ordered to produce this data frame!
+
+<!---
+```{r, eval=FALSE, purl=FALSE}
+## Answer
+too_many_cars <- nhts_per %>%
+  mutate(excess_vehicles = HHVEHCNT - WRKCOUNT) %>%
+  filter(excess_vehicles  >=2) %>%
+  select(HOUSEID, PERSONID, WRKCOUNT, HHVEHCNT, excess_vehicles)
+```
+--->
+
+### Split-apply-combine data analysis and the summarize() function
+
+Many data analysis tasks can be approached using the "split-apply-combine"
+paradigm: split the data into groups, apply some analysis to each group, and
+then combine the results. `dplyr` makes this very easy through the use of the
+`group_by()` function. `group_by()` splits the data into groups upon which some
+operations can be run. For example, if we wanted to find how many people were in
+each household,
+
+```{r, purl = FALSE}
+nhts_per %>%
+  group_by(HOUSEID) %>%
+  tally()
+```
+
+Here, `tally()` is the action applied to the groups created to `group_by()` and
+counts the total number of records for each category. `group_by()` is often used
+together with `summarize()` which collapses each group into a single-row summary
+of that group. So to get the average age of individuals in each household and the
+household size,
+
+
+```{r, purl = FALSE}
+nhts_per %>%
+  group_by(HOUSEID) %>%
+  summarize(
+    mean_age = mean(R_AGE),
+    number = n()
+  )
+```
+
+Another common use of `group_by` is `slice`, which gets the first `n` rows
+in the group.
+
+```{r, purl = FALSE}
+nhts_per %>%
+  group_by(HOUSEID) %>%
+  slice(1)
+```
+
+
+You can group by multiple columns too:
+
+```{r, purl = FALSE}
+nhts_per %>%
+  group_by(HHSIZE, HHVEHCNT) %>%
+  summarise(weighted_n = sum(WTPERFIN))
+```
+
+> ### Challenge {.challenge}
+>
+> What is the weighted probability of households with 1 person and no autos
+> taking transit?
+
+<!---
+```{r, purl = FALSE}
+nhts_per %>%
+  mutate(use_transit = ifelse(USEPUBTR == "01", TRUE, FALSE)) %>%
+  group_by(HHSIZE, HHVEHCNT) %>%
+  summarise(
+    weighted_n = sum(WTPERFIN),
+    transit_prob = sum(WTPERFIN * use_transit) / sum(WTPERFIN)
+  )
+  
+```
+
+--->
+
+
+`dplyr` also contains functions for joining two data frames together.
+
+```{r}
+person_age <- nhts_per %>% select(HOUSEID, PERSONID, R_AGE)
+trips <- nhts_day %>% select(HOUSEID, PERSONID, WHYTRP1S)
+
+
+left_join(trips, person_age)
+```
+
+
+> ### Challenge {.challenge}
+>
+> Create a data frame with the average number of trips made by households of
+> each household size and number of vehicles
+
+```{r, purl = FALSE}
+hh_trips <- nhts_day %>%
+  group_by(HOUSEID) %>%
+  summarise(trips = n()) 
+
+nhts_per %>%
+  group_by(HOUSEID) %>%
+  slice(1) %>% 
+  left_join(hh_trips) %>%
+  group_by(HHSIZE, HHVEHCNT) %>%
+  summarise(average_trips = mean(trips, na.rm = TRUE))
+
+```
+
+
+[Handy dplyr cheatsheet](http://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)
+
+*Much of this lesson was copied or adapted from Jeff Hollister's [materials](http://usepa.github.io/introR/2015/01/14/03-Clean/)*
