@@ -2,15 +2,12 @@
 layout: topic
 title: Data visualization with ggplot2
 subtitle: Visualizing data in R with the ggplot2 package
-minutes: 60
+minutes: 30
 ---
 
 ```{r, echo=FALSE, purl=FALSE}
-knitr::opts_chunk$set(fig.keep='last')
-```
-
-```{r setup, echo=FALSE, purl=FALSE}
-source("setup.R")
+knitr::opts_chunk$set(fig.keep='last', echo = TRUE, purl = FALSE, 
+                      results = 'hide', warning = FALSE)
 ```
 
 > ### Learning Objectives
@@ -28,29 +25,32 @@ library(dplyr)
 library(ggplot2)
 ```
 
-Load traffic data.
+Load or reload NHTS data.
 
 ```{r}
-pop <- readr::read_csv("http://www2.census.gov/geo/docs/reference/cenpop2010/county/CenPop2010_Mean_CO08.txt")
+nhts_per <- readr::read_csv("data/nhts_per.csv", 
+                            na = c("", "NA", -1, -8, -5, -4)) %>%
+  select(HOUSEID, HHSIZE, HHVEHCNT, TIMETOWK, YEARMILE, USEPUBTR)
 ```
-
-These data contain population and population center points for all the counties
-in the state of Colorado.
 
 ## Base plotting 
-Make a simple scatter plot of `hindfoot_length` (in millimeters) as a function
-of `weight` (in grams), using basic R plotting capabilities.
+Make a simple scatterplot of number of vehicles in the household as a function
+of household size, using basic R plotting capabilities.
 
 ```{r base-hist}
-hist(x = pop$POPULATION)
+plot(x = nhts_per$TIMETOWK, y = nhts_per$YEARMILE)
 ```
 
-Or how about a simple scatter plot of latitude and longitude, using basic R
-plotting capabilities.
+And for categorical variables let's plot a bar chart, using basic R plotting capabilities.
 
-```{r base-plot}
-plot(x = pop$LONGITUDE, y = pop$LATITUDE)
+```{r}
+counts <- table(nhts_per$HHVEHCNT, nhts_per$HHSIZE)
+barplot(counts, 
+        col = rainbow(9),
+        legend = rownames(counts), xlab = "Household size", 
+        main = "Distribution of Number of Vehicles by Household Size")
 ```
+
 
 ## Plotting with ggplot2
 We will make the same two plots using the `ggplot2` package. `ggplot2` is a
@@ -64,56 +64,63 @@ To build a ggplot we need to:
 
 1. Bind the plot to a specific data frame using the `data` argument.
 ```{r, eval=FALSE}
-ggplot(data = pop)
+ggplot(data = nhts_per)
 ```
 
 2. Define aesthetics (`aes`), which maps variables in the data to axes on the
 plot or to plotting size, shape color, etc.
 ```{r, eval=FALSE}
-ggplot(data = pop, aes(x = POPULATION))
+ggplot(data = nhts_per, aes(x = TIMETOWK, y = YEARMILE))
 ```
 
 3. Add `geoms`, which define the graphical representation of the data in the
 plot (points, lines, bars). To add a geom to the plot use `+` operator. Anything
 you put in the `ggplot()` function can be seen by any geom layers that you add.
 ```{r first-ggplot}
-ggplot(data = pop, aes(x = POPULATION)) +
-  geom_histogram()
+ggplot(data = nhts_per, aes(x = TIMETOWK, y = YEARMILE)) +
+  geom_point()
 ```
 
 4. Add better labeling.
-```{r first-ggplot}
-library(scales)
-ggplot(data = pop, aes(x = POPULATION)) +
-  geom_histogram() +
-  scale_x_continuous(labels = comma) +
-  labs(title = 'County Population in Colorado',
-       x = 'Population',
-       y = 'Count')
+```{r}
+ggplot(data = nhts_per, aes(x = TIMETOWK, y = YEARMILE)) +
+  geom_point() +
+  labs(title = 'Yearly Mileage vs Commute Time',
+       x = 'Time to Work (mins)',
+       y = 'Yearly Mileage')
 ```
 
-Let's try the scatterplot.
-```{r second-ggplot}
-ggplot(data = pop, aes(x = LONGITUDE, y = LATITUDE)) +
+5. Add a theme.
+```{r}
+ggplot(data = nhts_per, aes(x = TIMETOWK, y = YEARMILE)) +
   geom_point() +
-  coord_equal()
-```
-
-Usually plots with white background looks more readable in the publications.
-We can set the background to white using the function `theme_bw()`.
-
-```{r facet-by-species-and-sex-white-bg}
-ggplot(data = pop, aes(x = LONGITUDE, y = LATITUDE)) +
-  geom_point() +
-  coord_equal() +
+  labs(title = 'Yearly Mileage vs Commute Time',
+       x = 'Time to Work (mins)',
+       y = 'Yearly Mileage') +
   theme_bw()
 ```
 
-Sometimes adding color and transparency adds meaning to the plot.
+Sometimes adding color and transparency adds meaning to the plot. In this case, since we limited the number of rows of the NHTS data to 200, there is not much overlap. But with a lot of points, alpha can be very helpful.
 
 ```{r adding-colors}
-ggplot(data = pop, aes(x = LONGITUDE, y = LATITUDE)) +
-  geom_point(alpha = 0.1, color = "blue")
+ggplot(data = nhts_per, aes(x = TIMETOWK, y = YEARMILE)) +
+  geom_point(alpha = 0.3, color = "blue") +
+  labs(title = 'Yearly Mileage vs Commute Time',
+       x = 'Time to Work (mins)',
+       y = 'Yearly Mileage') +
+  theme_bw()
+```
+
+Let's try the barplot. Notice we need to convert the categorical data to factors. Ggplot2 treats factors and numbers differently when plotting. If you get an error with ggplot2, it is good practice to check to see that your categorical variables are factors and that are numeric variables are not.
+```{r second-ggplot}
+nhts_per <- nhts_per %>%
+  mutate(
+    HHSIZE = as.factor(HHSIZE),
+    HHVEHCNT = as.factor(HHVEHCNT),
+    USEPUBTR = factor(USEPUBTR, levels = c("01", "02"), labels = c("Yes", "No"))
+  )
+ggplot(data = nhts_per, aes(x = HHSIZE, fill = HHVEHCNT)) +
+  geom_bar()
 ```
 
 
@@ -122,9 +129,13 @@ ggplot(data = pop, aes(x = LONGITUDE, y = LATITUDE)) +
 plot into multiple plots based on some factor. 
 
 ```{r first-facet}
-ggplot(data = yearly_counts, aes(x = year, y = n, color = species_id)) +
-  geom_line() + 
-  facet_wrap(~species_id)
+ggplot(data = nhts_per, aes(x = HHSIZE, fill = HHVEHCNT)) +
+  geom_bar() +
+  facet_grid(. ~ USEPUBTR) +
+  labs(title = 'Household Size by Number of Vehicles by Transit Use',
+       x = 'Household Size',
+       y = 'Count') +
+  guides(fill = guide_legend(title = "Num of Vehs"))
 ```
 
 
