@@ -44,12 +44,12 @@ tutorials are taught over a day. This material is signficantly shortened.
 1. [Lesson 00 Before we start](00-before-we-start.html)
 2. [Lesson 01 Introduction to R and dplyr](01-new-intro-R.html)
 3. [Lesson 02 Data visualization with ggplot2](02-visualization-ggplot2.html)
-4. Bonus [Lesson 03 Using censusr](03-censusr.html)
+4. [Lesson 03 Using censusr](03-censusr.html) [bonus if time allows]
 
 ## Data
 Two data files are required for this lesson: [nhts_day.csv](http://psrc.github.io/itm-tutorial-R/data/nhts_day.csv) and [nhts_per.csv](http://psrc.github.io/itm-tutorial-R/data/nhts_per.csv). These only include the first 200 lines of the full National Household Travel Survey files.
 
-### Requirements
+## Requirements
 Data Carpentry's teaching is hands-on, so participants are encouraged to use
 their own computers to insure the proper setup of tools for an efficient workflow.
 *These lessons assume no prior knowledge of the skills or tools*, but working
@@ -58,5 +58,3 @@ To most effectively use these materials, please make sure to install everything
 *before* working through this lesson.
 
 Please visit the ITM Tutorial [homepage](http://psrc.github.io/itm-tutorial-2016) for software installations instructions for Windows, Mac, and Linux.
-
-<p><strong>Twitter</strong>: @datacarpentry</p>
