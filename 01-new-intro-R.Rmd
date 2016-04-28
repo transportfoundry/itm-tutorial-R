@@ -488,6 +488,7 @@ left_join(trips, person_age)
 > Create a data frame with the average number of trips made by households of
 > each household size and number of vehicles
 
+<!---
 ```{r, purl = FALSE, message = F}
 hh_trips <- nhts_day %>%
   group_by(HOUSEID) %>%
@@ -501,7 +502,7 @@ nhts_per %>%
   summarise(average_trips = mean(trips, na.rm = TRUE))
 
 ```
-
+--->
 
 [Handy dplyr cheatsheet](http://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)
 

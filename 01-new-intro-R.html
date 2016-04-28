@@ -346,16 +346,21 @@ left_join(trips, person_age)</code></pre>
 <h3 id="challenge-3" class="challenge">Challenge</h3>
 <p>Create a data frame with the average number of trips made by households of each household size and number of vehicles</p>
 </blockquote>
-<pre class="r"><code>hh_trips &lt;- nhts_day %&gt;%
-  group_by(HOUSEID) %&gt;%
+<!---
+
+```r
+hh_trips <- nhts_day %>%
+  group_by(HOUSEID) %>%
   summarise(trips = n()) 
 
-nhts_per %&gt;%
-  group_by(HOUSEID) %&gt;%
-  slice(1) %&gt;% 
-  left_join(hh_trips) %&gt;%
-  group_by(HHSIZE, HHVEHCNT) %&gt;%
-  summarise(average_trips = mean(trips, na.rm = TRUE))</code></pre>
+nhts_per %>%
+  group_by(HOUSEID) %>%
+  slice(1) %>% 
+  left_join(hh_trips) %>%
+  group_by(HHSIZE, HHVEHCNT) %>%
+  summarise(average_trips = mean(trips, na.rm = TRUE))
+```
+--->
 <p><a href="http://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf">Handy dplyr cheatsheet</a></p>
 <p><em>Much of this lesson was copied or adapted from Jeff Hollister’s <a href="http://usepa.github.io/introR/2015/01/14/03-Clean/">materials</a></em></p>
 </div>
