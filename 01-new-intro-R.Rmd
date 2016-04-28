@@ -256,8 +256,7 @@ library("readr")    ## load the package
 
 ## readr
 
-Download the NHTS data for this example from <https://goo.gl/8M0bdM>. Unzip the 
-two csv files and place them in your project's `data/` folder. Then read
+Two data files are required for this lesson: [nhts_day.csv](http://psrc.github.io/itm-tutorial-R/data/nhts_day.csv) and [nhts_per.csv](http://psrc.github.io/itm-tutorial-R/data/nhts_per.csv). Place these two csv files in your project's `data/` folder. Then read
 them into your workspace with `read_csv`. These are real NHTS records, but with 
 only the first 200 individuals for expediency.
 
@@ -338,14 +337,12 @@ Note that the final data frame is the leftmost part of this expression.
 where the number of vehicles is less than the number of adults. (`R_AGE` is the 
 age of the individual.)
 
-<!---
 ```{r, eval=FALSE, purl=FALSE}
 ## Answer
 nhts_per %>%
     filter(R_AGE >= 18) %>%
     filter(HHVEHCNT < NUMADLT)
 ```
---->
 
 
 ### Mutate
@@ -393,7 +390,6 @@ nhts_per %>%
 >  than workers.
 >  **Hint**: think about how the commands should be ordered to produce this data frame!
 
-<!---
 ```{r, eval=FALSE, purl=FALSE}
 ## Answer
 too_many_cars <- nhts_per %>%
@@ -401,7 +397,6 @@ too_many_cars <- nhts_per %>%
   filter(excess_vehicles  >=2) %>%
   select(HOUSEID, PERSONID, WRKCOUNT, HHVEHCNT, excess_vehicles)
 ```
---->
 
 ### Split-apply-combine data analysis and the summarize() function
 
@@ -457,7 +452,6 @@ nhts_per %>%
 > What is the weighted probability of households with 1 person and no autos
 > taking transit?
 
-<!---
 ```{r, purl = FALSE}
 nhts_per %>%
   mutate(use_transit = ifelse(USEPUBTR == "01", TRUE, FALSE)) %>%
@@ -469,7 +463,6 @@ nhts_per %>%
   
 ```
 
---->
 
 
 `dplyr` also contains functions for joining two data frames together.
@@ -488,7 +481,6 @@ left_join(trips, person_age)
 > Create a data frame with the average number of trips made by households of
 > each household size and number of vehicles
 
-<!---
 ```{r, purl = FALSE, message = F}
 hh_trips <- nhts_day %>%
   group_by(HOUSEID) %>%
@@ -502,7 +494,6 @@ nhts_per %>%
   summarise(average_trips = mean(trips, na.rm = TRUE))
 
 ```
---->
 
 [Handy dplyr cheatsheet](http://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)
 

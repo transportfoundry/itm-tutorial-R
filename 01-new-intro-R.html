@@ -225,7 +225,7 @@ library(&quot;readr&quot;)    ## load the package</code></pre>
 </div>
 <div id="readr" class="section level2">
 <h2>readr</h2>
-<p>Download the NHTS data for this example from <a href="https://goo.gl/8M0bdM" class="uri">https://goo.gl/8M0bdM</a>. Unzip the two csv files and place them in your project’s <code>data/</code> folder. Then read them into your workspace with <code>read_csv</code>. These are real NHTS records, but with only the first 200 individuals for expediency.</p>
+<p>Two data files are required for this lesson: <a href="http://psrc.github.io/itm-tutorial-R/data/nhts_day.csv">nhts_day.csv</a> and <a href="http://psrc.github.io/itm-tutorial-R/data/nhts_per.csv">nhts_per.csv</a>. Place these two csv files in your project’s <code>data/</code> folder. Then read them into your workspace with <code>read_csv</code>. These are real NHTS records, but with only the first 200 individuals for expediency.</p>
 <pre class="r"><code>nhts_per &lt;- read_csv(&quot;data/nhts_per.csv&quot;)
 nhts_per
 nhts_day &lt;- read_csv(&quot;data/nhts_day.csv&quot;)
@@ -256,15 +256,10 @@ nhts_day</code></pre>
 <h3 id="challenge" class="challenge">Challenge</h3>
 <p>Using pipes, subset the data to include adults who live in households where the number of vehicles is less than the number of adults. (<code>R_AGE</code> is the age of the individual.)</p>
 </blockquote>
-<!---
-
-```r
-## Answer
-nhts_per %>%
-    filter(R_AGE >= 18) %>%
-    filter(HHVEHCNT < NUMADLT)
-```
---->
+<pre class="r"><code>## Answer
+nhts_per %&gt;%
+    filter(R_AGE &gt;= 18) %&gt;%
+    filter(HHVEHCNT &lt; NUMADLT)</code></pre>
 </div>
 <div id="mutate" class="section level3">
 <h3>Mutate</h3>
@@ -287,16 +282,11 @@ nhts_per %>%
 <h3 id="challenge-1" class="challenge">Challenge</h3>
 <p>Create a new dataframe from the nhts person data that meets the following criteria: contains only the <code>HOUSEID</code> and <code>PERSONID</code> columns and a column that gives the difference between the number of workers and the number of vehicles in the household, but only for households with at least two more vehicles than workers. <strong>Hint</strong>: think about how the commands should be ordered to produce this data frame!</p>
 </blockquote>
-<!---
-
-```r
-## Answer
-too_many_cars <- nhts_per %>%
-  mutate(excess_vehicles = HHVEHCNT - WRKCOUNT) %>%
-  filter(excess_vehicles  >=2) %>%
-  select(HOUSEID, PERSONID, WRKCOUNT, HHVEHCNT, excess_vehicles)
-```
---->
+<pre class="r"><code>## Answer
+too_many_cars &lt;- nhts_per %&gt;%
+  mutate(excess_vehicles = HHVEHCNT - WRKCOUNT) %&gt;%
+  filter(excess_vehicles  &gt;=2) %&gt;%
+  select(HOUSEID, PERSONID, WRKCOUNT, HHVEHCNT, excess_vehicles)</code></pre>
 </div>
 <div id="split-apply-combine-data-analysis-and-the-summarize-function" class="section level3">
 <h3>Split-apply-combine data analysis and the summarize() function</h3>
@@ -323,19 +313,13 @@ too_many_cars <- nhts_per %>%
 <h3 id="challenge-2" class="challenge">Challenge</h3>
 <p>What is the weighted probability of households with 1 person and no autos taking transit?</p>
 </blockquote>
-<!---
-
-```r
-nhts_per %>%
-  mutate(use_transit = ifelse(USEPUBTR == "01", TRUE, FALSE)) %>%
-  group_by(HHSIZE, HHVEHCNT) %>%
+<pre class="r"><code>nhts_per %&gt;%
+  mutate(use_transit = ifelse(USEPUBTR == &quot;01&quot;, TRUE, FALSE)) %&gt;%
+  group_by(HHSIZE, HHVEHCNT) %&gt;%
   summarise(
     weighted_n = sum(WTPERFIN),
     transit_prob = sum(WTPERFIN * use_transit) / sum(WTPERFIN)
-  )
-```
-
---->
+  )</code></pre>
 <p><code>dplyr</code> also contains functions for joining two data frames together.</p>
 <pre class="r"><code>person_age &lt;- nhts_per %&gt;% select(HOUSEID, PERSONID, R_AGE)
 trips &lt;- nhts_day %&gt;% select(HOUSEID, PERSONID, WHYTRP1S)
@@ -346,21 +330,16 @@ left_join(trips, person_age)</code></pre>
 <h3 id="challenge-3" class="challenge">Challenge</h3>
 <p>Create a data frame with the average number of trips made by households of each household size and number of vehicles</p>
 </blockquote>
-<!---
-
-```r
-hh_trips <- nhts_day %>%
-  group_by(HOUSEID) %>%
+<pre class="r"><code>hh_trips &lt;- nhts_day %&gt;%
+  group_by(HOUSEID) %&gt;%
   summarise(trips = n()) 
 
-nhts_per %>%
-  group_by(HOUSEID) %>%
-  slice(1) %>% 
-  left_join(hh_trips) %>%
-  group_by(HHSIZE, HHVEHCNT) %>%
-  summarise(average_trips = mean(trips, na.rm = TRUE))
-```
---->
+nhts_per %&gt;%
+  group_by(HOUSEID) %&gt;%
+  slice(1) %&gt;% 
+  left_join(hh_trips) %&gt;%
+  group_by(HHSIZE, HHVEHCNT) %&gt;%
+  summarise(average_trips = mean(trips, na.rm = TRUE))</code></pre>
 <p><a href="http://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf">Handy dplyr cheatsheet</a></p>
 <p><em>Much of this lesson was copied or adapted from Jeff Hollister’s <a href="http://usepa.github.io/introR/2015/01/14/03-Clean/">materials</a></em></p>
 </div>
