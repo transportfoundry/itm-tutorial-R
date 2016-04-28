@@ -1,0 +1,56 @@
+---
+layout: topic
+title: Censusr
+subtitle: Grabbing data in R from the Census API
+minutes: 10
+---
+
+```{r, echo=FALSE, purl=FALSE}
+knitr::opts_chunk$set(fig.keep='last', echo = TRUE, purl = FALSE, 
+                      results = 'hide')
+```
+
+> ### Learning Objectives
+>
+> - Grab ACS or Decennial Census data from Census API
+
+To install this package, run the command below. For full details on how to get started using `censusr` on your computer, see the package vignette.
+
+```{r, eval = F}
+install.packages("censusr")
+vignette("censusr")
+```
+
+Load required package.
+
+```{r, message = FALSE}
+library(censusr)
+```
+
+And then let's get to business! The package works by sending a list of requested variables and a list of geographies. The call below requests the number of households owning 0, 1, 2, 3, or 4 or more vehicles in Wake County, North Carolina (geoid = 37183). We specify that we want this table for 2012 5-year summary level.
+
+```{r}
+variable_list <- paste0("B08201_", sprintf("%03d", 2:6),  "E")
+call_census_api(
+  variable_list, names = c(0:4), geoids = "37183",  
+  data_source = "acs", year =  2012, period = 5) 
+```
+
+We can use the `allgeos` argument to say that we actually want these variables for all census tracts within Wake County.
+
+```{r}
+call_census_api(
+  variable_list, names = paste0("est_", c(0:4)), 
+  geoids = "37183",  allgeos = "tr",
+  data_source = "acs", year =  2012, period = 5)
+```
+
+If we want the margins of error on this table instead of the estimates, we can change the variable to call the M type instead of the E type.
+
+```{r}
+new_var_list <- paste0("B08201_", sprintf("%03d", 2:6),  "M")
+call_census_api(
+  new_var_list, names = paste0("moe_", c(0:4)), 
+  geoids = "37183",  allgeos = "tr",
+  data_source = "acs", year =  2012, period = 5)
+```
