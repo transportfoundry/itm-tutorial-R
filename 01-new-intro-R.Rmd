@@ -6,7 +6,7 @@ minutes: 45
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, purl = FALSE)
+knitr::opts_chunk$set(echo = TRUE, purl = FALSE, results = 'hide')
 ```
 
 
@@ -17,7 +17,7 @@ knitr::opts_chunk$set(echo = TRUE, purl = FALSE)
 > * Familiarize participants with R syntax
 > * Understand the concepts of objects and assignment
 > * Understand what functions and packages are, and how to obtain them.
-> * Understand the concepts data frames, vectors, and data types
+> * Understand data frames, vectors, and data types
 
 
 ------------
@@ -474,7 +474,7 @@ nhts_per %>%
 
 `dplyr` also contains functions for joining two data frames together.
 
-```{r}
+```{r, message = F}
 person_age <- nhts_per %>% select(HOUSEID, PERSONID, R_AGE)
 trips <- nhts_day %>% select(HOUSEID, PERSONID, WHYTRP1S)
 
@@ -488,7 +488,7 @@ left_join(trips, person_age)
 > Create a data frame with the average number of trips made by households of
 > each household size and number of vehicles
 
-```{r, purl = FALSE}
+```{r, purl = FALSE, message = F}
 hh_trips <- nhts_day %>%
   group_by(HOUSEID) %>%
   summarise(trips = n()) 
