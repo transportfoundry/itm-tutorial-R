@@ -7,7 +7,7 @@ minutes: 30
 
 ```{r, echo=FALSE, purl=FALSE}
 knitr::opts_chunk$set(fig.keep='last', echo = TRUE, purl = FALSE, 
-                      results = 'hide', warning = FALSE)
+                      results = 'hide', message = FALSE)
 ```
 
 > ### Learning Objectives
