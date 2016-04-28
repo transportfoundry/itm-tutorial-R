@@ -40,7 +40,7 @@ tutorials are taught over a day. This material is signficantly shortened.
 
 <!-- ###### INDEX OF LESSONS ON THIS TOPIC ###### -->
 
-## Lessons:
+## Lessons
 1. [Lesson 00 Before we start](00-before-we-start.html)
 2. [Lesson 01 Introduction to R and dplyr](01-new-intro-R.html)
 3. [Lesson 02 Data visualization with ggplot2](02-visualization-ggplot2.html)
