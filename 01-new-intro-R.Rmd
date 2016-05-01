@@ -34,15 +34,49 @@ _Start by showing an example of a script_
   - the `$` operator
 * Point to indentation and consistency in spacing to improve clarity
 
-![Example of a simple R script](img/r_starting_example_script.png)
+```{r, eval = FALSE, echo = TRUE}
+library(dplyr)
+library(tidyr)
+library(readr)
+
+#' Convert a zone-to-zone record of trucks into a trip table.
+#'
+#' @param trucks A data frame of truck plans, from TAZ i to TAZ j. Also includes
+#'   truck class.
+#' @param taz A vector containing all i.
+#'
+#' @return a data frame with i, j, and volume by class.
+#'
+#' @import dplyr
+#' @import tidyr
+#'
+sum_to_taz <- function(x){
+  
+  x <- x %>%
+    # determine if truck is MU or SU
+    mutate(class = ifelse(grepl("SU", config), "SU", "MU")) %>%
+    
+    # Add up to i, j, by class
+    group_by(origin, destination, class) %>%
+    summarise(n = n()) %>%
+    
+    # spread across types
+    spread(class, n, fill = 0)
+  
+  return(x)
+}
+
+
+trucks <- read_csv("county_plans.csv", col_types = "ccccc")  %>%
+  sum_to_taz()
+
+write_csv(trucks, "county_od_config.csv")
+```
+
+
 
 
 ### Creating objects
-
-```{r, echo=FALSE, purl=TRUE}
-### Creating objects in R
-
-```
 
 You can get output from R simply by typing in math in the console
 
@@ -83,7 +117,6 @@ print the value by using parentheses or by typing the name:
 
 ```{r, purl=FALSE}
 weight_kg <- 55    # doesn't print anything
-(weight_kg <- 55)  # but putting parenthesis around the call prints the value of `weight_kg`
 weight_kg          # and so does typing the name of the object
 ```
 
@@ -141,14 +174,14 @@ are there quotes around the values?
 ```{r}
 a_character <- c(100, 80, "90")
 a_character
-str(a)
+str(a_character)
 ```
 
 If you have a vector of data that you want to be numeric but it is read in
 as characters, you can change it to numeric.
 
 ```{r}
-as.numeric(a)
+as.numeric(a_character)
 ```
 
 If you have a field that cannot be turned into a numeric value, it becomes
@@ -192,12 +225,13 @@ mean(c(5, 7, 4, NA), na.rm = TRUE)
 
 ### Data frames
 
-A data frame is a list of vectors that must be of the same length.
+A data frame is a list of vectors that must be of the same length. This object
+works like tabular data you have used before.
 
 ```{r}
 d <- data.frame(
-  name = c(1L, 2L, 3L),
-  a = a
+  name = c(1, 2, 3),
+  value = c(72, 34, 85)
 )
 
 d
@@ -208,7 +242,7 @@ You can do operations on single vector elements from a data frame with the `$`
 selection operator.
 
 ```{r}
-mean(d$a)
+mean(d$value)
 ```
 
 
@@ -222,10 +256,11 @@ stuff. The functions we've been using so far, like `str()` or `mean()`,
 come built into R; packages give you access thousands of functions that have been
 written by programmers and scientists around the world. Before you use a
 package for the first time you need to install it on your machine. 
-for this workshop, install two packages: `dplyr` and `readr`.
+for this workshop, install three packages: `dplyr`, `ggplot2`, and `readr`.
 
 ```{r, eval = FALSE, purl = FALSE}
 install.packages("dplyr")
+install.packages("ggplot2")
 install.packages("readr")
 ```
 
@@ -256,20 +291,21 @@ library("readr")    ## load the package
 
 ## readr
 
-Two data files are required for this lesson: [nhts_day.csv](http://psrc.github.io/itm-tutorial-R/data/nhts_day.csv) and [nhts_per.csv](http://psrc.github.io/itm-tutorial-R/data/nhts_per.csv). Place these two csv files in your project's `data/` folder. Then read
-them into your workspace with `read_csv`. These are real NHTS records, but with 
+Download the data for this lesson: 
+[nhts_per.csv](http://psrc.github.io/itm-tutorial-R/data/nhts_per.csv). Place
+this csv file in your project's `data/` folder. Then read
+it into your workspace with `read_csv`. These are real NHTS person records, but with 
 only the first 200 individuals for expediency.
 
 ```{r}
 nhts_per <- read_csv("data/nhts_per.csv")
 nhts_per
-nhts_day <- read_csv("data/nhts_day.csv")
-nhts_day
 ```
 
-When you print a data frame, it will show you how many rows are in the data, and 
-the names and types of all the variables. Additionally, RStudio is equipped with
-a function that will allow you to explore a data frame interactively.
+When you print a data frame that you loaded with `read_csv` and `dplyr`, it will
+show you how many rows are in the data, and the names and types of all the
+variables. Additionally, RStudio is equipped with a function that will allow you
+to explore a data frame interactively.
 
 ```{r, eval = FALSE}
 View(nhts_per)
@@ -277,10 +313,11 @@ View(nhts_per)
 
 ## dplyr
 
-We're going to learn some of the most common `dplyr` functions: `select()`,
-`filter()`, `mutate()`, `group_by()`, and `summarize()`. To select columns of a
-data frame, use `select()`. The first argument to this function is the data
-frame (`surveys`), and the subsequent arguments are the columns to keep.
+Now that we have a data_frame in our workspace, we're going to learn some of the
+most common `dplyr` functions: `select()`, `filter()`, `mutate()`, `group_by()`,
+and `summarize()`. To select columns of a data frame, use `select()`. The first
+argument to this function is the data frame (`surveys`), and the subsequent
+arguments are the columns to keep.
 
 ```{r, results = 'hide', purl = FALSE}
 select(nhts_per, HOUSEID,  HHSIZE, HHVEHCNT, USEPUBTR)
@@ -333,7 +370,7 @@ Note that the final data frame is the leftmost part of this expression.
 
 > ### Challenge {.challenge}
 >
->  Using pipes, subset the data to include adults who live in households 
+>  Using pipes, subset the data to include people 18 and older  who live in households 
 where the number of vehicles is less than the number of adults. (`R_AGE` is the 
 age of the individual.)
 
@@ -349,7 +386,7 @@ nhts_per %>%
 
 Frequently you'll want to create new columns based on the values in existing
 columns, for example to do unit conversions, or find the ratio of values in two
-columns. For this we'll use `mutate()`.
+columns. For this use `mutate()`.
 
 To create a new column which is a logical value if the person used public transit,
 
@@ -381,22 +418,6 @@ nhts_per %>%
   filter(!use_transit) %>%
   select(HOUSEID, PERSONID, use_transit)
 ```
-> ### Challenge {.challenge}
->
->  Create a new dataframe from the nhts person data that meets the following
->  criteria: contains only the `HOUSEID` and `PERSONID` columns and a column
->  that gives the difference between the number of workers and the number of
->  vehicles in the household, but only for households with at least two more vehicles
->  than workers.
->  **Hint**: think about how the commands should be ordered to produce this data frame!
-
-```{r, eval=FALSE, purl=FALSE}
-## Answer
-too_many_cars <- nhts_per %>%
-  mutate(excess_vehicles = HHVEHCNT - WRKCOUNT) %>%
-  filter(excess_vehicles  >=2) %>%
-  select(HOUSEID, PERSONID, WRKCOUNT, HHVEHCNT, excess_vehicles)
-```
 
 ### Split-apply-combine data analysis and the summarize() function
 
@@ -405,19 +426,7 @@ paradigm: split the data into groups, apply some analysis to each group, and
 then combine the results. `dplyr` makes this very easy through the use of the
 `group_by()` function. `group_by()` splits the data into groups upon which some
 operations can be run. For example, if we wanted to find how many people were in
-each household,
-
-```{r, purl = FALSE}
-nhts_per %>%
-  group_by(HOUSEID) %>%
-  tally()
-```
-
-Here, `tally()` is the action applied to the groups created to `group_by()` and
-counts the total number of records for each category. `group_by()` is often used
-together with `summarize()` which collapses each group into a single-row summary
-of that group. So to get the average age of individuals in each household and the
-household size,
+each household and their average age,
 
 
 ```{r, purl = FALSE}
@@ -425,17 +434,8 @@ nhts_per %>%
   group_by(HOUSEID) %>%
   summarize(
     mean_age = mean(R_AGE),
-    number = n()
+    number_people = n()
   )
-```
-
-Another common use of `group_by` is `slice`, which gets the first `n` rows
-in the group.
-
-```{r, purl = FALSE}
-nhts_per %>%
-  group_by(HOUSEID) %>%
-  slice(1)
 ```
 
 
@@ -444,55 +444,10 @@ You can group by multiple columns too:
 ```{r, purl = FALSE}
 nhts_per %>%
   group_by(HHSIZE, HHVEHCNT) %>%
-  summarise(weighted_n = sum(WTPERFIN))
-```
-
-> ### Challenge {.challenge}
->
-> What is the weighted probability of households with 1 person and no autos
-> taking transit?
-
-```{r, purl = FALSE}
-nhts_per %>%
-  mutate(use_transit = ifelse(USEPUBTR == "01", TRUE, FALSE)) %>%
-  group_by(HHSIZE, HHVEHCNT) %>%
   summarise(
-    weighted_n = sum(WTPERFIN),
-    transit_prob = sum(WTPERFIN * use_transit) / sum(WTPERFIN)
+    n = n(),
+    weighted_n = sum(WTPERFIN)
   )
-  
-```
-
-
-
-`dplyr` also contains functions for joining two data frames together.
-
-```{r, message = F}
-person_age <- nhts_per %>% select(HOUSEID, PERSONID, R_AGE)
-trips <- nhts_day %>% select(HOUSEID, PERSONID, WHYTRP1S)
-
-
-left_join(trips, person_age)
-```
-
-
-> ### Challenge {.challenge}
->
-> Create a data frame with the average number of trips made by households of
-> each household size and number of vehicles
-
-```{r, purl = FALSE, message = F}
-hh_trips <- nhts_day %>%
-  group_by(HOUSEID) %>%
-  summarise(trips = n()) 
-
-nhts_per %>%
-  group_by(HOUSEID) %>%
-  slice(1) %>% 
-  left_join(hh_trips) %>%
-  group_by(HHSIZE, HHVEHCNT) %>%
-  summarise(average_trips = mean(trips, na.rm = TRUE))
-
 ```
 
 [Handy dplyr cheatsheet](http://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)
