@@ -12,8 +12,7 @@ knitr::opts_chunk$set(fig.keep='last', echo = TRUE, purl = FALSE,
 
 > ### Learning Objectives
 >
-> - Visualize data using base R
-> -	Visualize the same plot using R ggplot2 package
+> -	Visualize data using R ggplot2 package
 > -	Build step-by-step complex plots with the ggplot2 package
 
 For more details and additional tutorials on using ggplot2, see the [official documentation](http://docs.ggplot2.org/current/).
@@ -25,7 +24,9 @@ library(dplyr)
 library(ggplot2)
 ```
 
-Load or reload NHTS data.
+Load or reload NHTS data. 
+
+The `read_csv()` function has a handy `na = c(...)` input that allows us to quickly deal with the many, many definitions of missing that NHTS has.
 
 ```{r}
 nhts_per <- readr::read_csv("data/nhts_per.csv", 
@@ -33,32 +34,13 @@ nhts_per <- readr::read_csv("data/nhts_per.csv",
   select(HOUSEID, HHSIZE, HHVEHCNT, TIMETOWK, YEARMILE, USEPUBTR)
 ```
 
-## Base plotting 
-Make a simple scatterplot of number of vehicles in the household as a function
-of household size, using basic R plotting capabilities.
-
-```{r base-hist}
-plot(x = nhts_per$TIMETOWK, y = nhts_per$YEARMILE)
-```
-
-And for categorical variables let's plot a bar chart, using basic R plotting capabilities.
-
-```{r}
-counts <- table(nhts_per$HHVEHCNT, nhts_per$HHSIZE)
-barplot(counts, 
-        col = rainbow(9),
-        legend = rownames(counts), xlab = "Household size", 
-        main = "Distribution of Number of Vehicles by Household Size")
-```
-
-
-## Plotting with ggplot2
-We will make the same two plots using the `ggplot2` package. `ggplot2` is a
+## `ggplot2` Basics
+We will make two plots using the `ggplot2` package. `ggplot2` is a
 plotting package that makes it simple to create complex plots from data in a
 dataframe. It uses default settings, which help create publication quality
 plots with a minimal amount of settings and tweaking.
 
-`ggplot2` graphics are built step by step by adding new elements.
+`ggplot2` graphics are built step by step by adding elements.
 
 To build a ggplot we need to:
 
@@ -68,7 +50,9 @@ ggplot(data = nhts_per)
 ```
 
 2. Define aesthetics (`aes`), which maps variables in the data to axes on the
-plot or to plotting size, shape color, etc.
+plot or to plotting size, shape color, etc. 
+
+Think of `aes()` like the `data_frame()` function we used before.
 ```{r, eval=FALSE}
 ggplot(data = nhts_per, aes(x = TIMETOWK, y = YEARMILE))
 ```
@@ -81,7 +65,7 @@ ggplot(data = nhts_per, aes(x = TIMETOWK, y = YEARMILE)) +
   geom_point()
 ```
 
-4. Add better labeling.
+4. (optional) Add better labeling.
 ```{r}
 ggplot(data = nhts_per, aes(x = TIMETOWK, y = YEARMILE)) +
   geom_point() +
@@ -90,7 +74,7 @@ ggplot(data = nhts_per, aes(x = TIMETOWK, y = YEARMILE)) +
        y = 'Yearly Mileage')
 ```
 
-5. Add a theme.
+5. (optional) Add a theme if you want.
 ```{r}
 ggplot(data = nhts_per, aes(x = TIMETOWK, y = YEARMILE)) +
   geom_point() +
@@ -111,26 +95,61 @@ ggplot(data = nhts_per, aes(x = TIMETOWK, y = YEARMILE)) +
   theme_bw()
 ```
 
-Let's try the barplot. Notice we need to convert the categorical data to factors. Ggplot2 treats factors and numbers differently when plotting. If you get an error with ggplot2, it is good practice to check to see that your categorical variables are factors and that are numeric variables are not.
-```{r second-ggplot}
-nhts_per <- nhts_per %>%
-  mutate(
-    HHSIZE = as.factor(HHSIZE),
-    HHVEHCNT = as.factor(HHVEHCNT),
-    USEPUBTR = factor(USEPUBTR, levels = c("01", "02"), labels = c("Yes", "No"))
-  )
-ggplot(data = nhts_per, aes(x = HHSIZE, fill = HHVEHCNT)) +
+## Barplot
+Let's try a barplot. 
+
+```{r}
+ggplot(data = nhts_per, aes(x = HHVEHCNT)) +
+  geom_bar() 
+```
+
+But this looks a bit funny right? What if, for example, NHTS coded "8" to actually be any household with 8 or more vehicles. We can instead treat this variable as categories, which in R are called factors.
+
+```{r}
+ggplot(data = nhts_per, aes(x = as.factor(HHVEHCNT))) +
+  geom_bar() +
+  scale_fill_brewer()
+```
+
+Then maybe we want to get even fancier and see how household size plays into this distribution.
+```{r}
+ggplot(data = nhts_per, aes(x = as.factor(HHVEHCNT), 
+                            fill = as.factor(HHSIZE))) +
   geom_bar()
+```
+
+And maybe we don't like those colors, so we'll change them.
+```{r}
+ggplot(data = nhts_per, aes(x = as.factor(HHVEHCNT), 
+                            fill = as.factor(HHSIZE))) +
+  geom_bar() +
+  scale_fill_brewer()
 ```
 
 
 ## Faceting
 `ggplot2` has a special technique called *faceting* that allows to split one
-plot into multiple plots based on some factor. 
+plot into multiple plots based on some factor. Let's take the same graph and add
+another dimension. Let's look at household size and number of vehicles BY
+transit useage.
 
-```{r first-facet}
-ggplot(data = nhts_per, aes(x = HHSIZE, fill = HHVEHCNT)) +
+```{r}
+ggplot(data = nhts_per, aes(x = as.factor(HHVEHCNT), 
+                            fill = as.factor(HHSIZE))) +
   geom_bar() +
+  scale_fill_brewer() +
+  facet_grid(. ~ USEPUBTR)
+```
+
+> ### Challenge {.challenge}
+>
+>  Update the labeling so that people can understand the plot.
+
+```{r}
+ggplot(data = nhts_per, aes(x = as.factor(HHVEHCNT), 
+                            fill = as.factor(HHSIZE))) +
+  geom_bar() +
+  scale_fill_brewer() +
   facet_grid(. ~ USEPUBTR) +
   labs(title = 'Household Size by Number of Vehicles by Transit Use',
        x = 'Household Size',
@@ -138,13 +157,5 @@ ggplot(data = nhts_per, aes(x = HHSIZE, fill = HHVEHCNT)) +
   guides(fill = guide_legend(title = "Num of Vehs"))
 ```
 
-
-Here are some ideas:
-
-* See if you can change thickness of the lines.
-* Can you find a way to change the name of the legend?
-What about its labels?
-* Use different color palette to improve the look
-(http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/)
-
-Enjoy plotting with ggplot2!
+Enjoy plotting with ggplot2! Use Google search, other online tutorials, and R's
+help functionality to teach yourself more.
