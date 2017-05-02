@@ -112,4 +112,5 @@ data. The conflicts message tells you that when you loaded `dplyr`, two
 functions included with R, `filter` and `lag`, were replaced with versions in
 the `dplyr` library.
 
-Once you have successfully installed the tidyverse, your are ready to
+Once you have successfully installed the tidyverse, you are ready to use
+R for data science.
