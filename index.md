@@ -12,6 +12,13 @@ status: Teaching
 
 ## Data analysis and visualization in R for transportation
 
+R is an open-source computer programming language primarily designed for data
+analysis and statistics; through its extensive community of user-contributed
+packages, it is one of the most popular and accessible platforms for beginning
+and advanced data science. This laptops-open tutorial will introduce modern
+data science practices and tools to novice analysts – those more accustomed to
+spreadsheet software and having little to no programming experience.
+
 Data Carpentry's aim is to teach researchers basic concepts, skills,
 and tools for working with data so that they can get more done in less
 time, and with less pain. The lessons below were designed for those interested
