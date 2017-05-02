@@ -40,14 +40,6 @@ tutorials are taught over a day. This material is signficantly shortened.
 
 <!-- ###### INDEX OF LESSONS ON THIS TOPIC ###### -->
 
-## Lessons
-1. [Lesson 00 Before we start](00-before-we-start.html)
-2. [Lesson 01 Introduction to R and dplyr](01-new-intro-R.html)
-3. [Lesson 02 Data visualization with ggplot2](02-visualization-ggplot2.html)
-4. [Lesson 03 Using censusr](03-censusr.html) [bonus if time allows]
-
-## Data
-Two data files are required for this lesson: [nhts_day.csv](http://psrc.github.io/itm-tutorial-R/data/nhts_day.csv) and [nhts_per.csv](http://psrc.github.io/itm-tutorial-R/data/nhts_per.csv). These only include the first 200 lines of the full National Household Travel Survey files.
 
 ## Requirements
 Data Carpentry's teaching is hands-on, so participants are encouraged to use
@@ -114,3 +106,21 @@ the `dplyr` library.
 
 Once you have successfully installed the tidyverse, you are ready to use
 R for data science.
+
+
+## Lessons
+Two data files are required for this lesson:
+[nhts_day.csv](http://psrc.github.io/itm-tutorial-R/data/nhts_day.csv) and
+[nhts_per.csv](http://psrc.github.io/itm-tutorial-R/data/nhts_per.csv). These
+only include the first 200 lines of the full National Household Travel Survey
+files. Download the files and keep them in an accessible place on your hard  
+drive. You will place them in the proper place in the tutorials.
+
+  1. [Lesson 00 Before we start](00-before-we-start.html): A motivation to use
+  R, and how to set up your working environment.
+  2. [Lesson 01 Introduction to R and dplyr](01-new-intro-R.html): How to use R
+  to calculate statistics on data structures, including complex data tables.
+  3. [Lesson 02 Data visualization with ggplot2](02-visualization-ggplot2.html):
+  How to use R to produce graphics and plots.
+  4. [Lesson 03 Using censusr](03-censusr.html): Downloading data directly from
+  the US Census Bureau into R [bonus if time allows].
